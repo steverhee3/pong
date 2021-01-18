@@ -1,4 +1,7 @@
 // Canvas
+document.getElementById('fruit').loop = true; 
+document.getElementById('intro').loop = true; 
+    const sounds = ['intro', 'fruit'];
 const { body } = document;
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
@@ -13,7 +16,7 @@ const gameOverEl = document.createElement('div');
 
 // Paddle
 const paddleHeight = 10;
-const paddleWidth = 50;
+const paddleWidth = 200;
 const paddleDiff = 25;
 let paddleBottomX = 225;
 let paddleTopX = 225;
@@ -33,19 +36,19 @@ let computerSpeed;
 
 // Change Mobile Settings
 if (isMobile.matches) {
-  speedY = -2;
+  speedY = -5;
   speedX = speedY;
-  computerSpeed = 4;
+  computerSpeed = 7;
 } else {
-  speedY = -1;
+  speedY = -6;
   speedX = speedY;
-  computerSpeed = 3;
+  computerSpeed = 8;
 }
 
 // Score
 let playerScore = 0;
 let computerScore = 0;
-const winningScore = 4;
+const winningScore = 5;
 let isGameOver = true;
 let isNewGame = true;
 
@@ -66,7 +69,7 @@ function renderCanvas() {
 
   // Dashed Center Line
    context.beginPath();
-   context.setLineDash([4]);
+   context.setLineDash([15]);
    context.moveTo(0, 350);
    context.lineTo(500, 350);
    context.strokeStyle = 'grey';
@@ -115,11 +118,11 @@ function ballMove() {
 // Determine What Ball Bounces Off, Score Points, Reset Ball
 function ballBoundaries() {
   // Bounce off Left Wall
-  if (ballX < 0 && speedX < 0) {
+  if (ballX < 3 && speedX < 0) {
     speedX = -speedX;
   }
   // Bounce off Right Wall
-  if (ballX > width && speedX > 0) {
+  if (ballX > width-3 && speedX > 0) {
     speedX = -speedX;
   }
   // Bounce off player paddle (bottom)
@@ -128,16 +131,17 @@ function ballBoundaries() {
       paddleContact = true;
       // Add Speed on Hit
       if (playerMoved) {
-        speedY -= 1;
+        speedY -= 3;
+        computerSpeed += 2
         // Max Speed
-        if (speedY < -5) {
-          speedY = -5;
-          computerSpeed = 6;
+        if (speedY < -100) {
+          speedY = -100;
+          computerSpeed = 98;
         }
       }
       speedY = -speedY;
       trajectoryX = ballX - (paddleBottomX + paddleDiff);
-      speedX = trajectoryX * 0.3;
+      speedX = trajectoryX * 0.2;
     } else if (ballY > height) {
       // Reset Ball, add to Computer Score
       ballReset();
@@ -149,10 +153,11 @@ function ballBoundaries() {
     if (ballX > paddleTopX && ballX < paddleTopX + paddleWidth) {
       // Add Speed on Hit
       if (playerMoved) {
-        speedY += 1;
+        speedY += 3;
+        computerSpeed += 2
         // Max Speed
-        if (speedY > 5) {
-          speedY = 5;
+        if (speedY > 100) {
+          speedY = 100;
         }
       }
       speedY = -speedY;
@@ -167,9 +172,11 @@ function ballBoundaries() {
 // Computer Movement
 function computerAI() {
   if (playerMoved) {
-    if (paddleTopX + paddleDiff < ballX) {
+    if (paddleTopX + 100 < ballX) {
+      
       paddleTopX += computerSpeed;
     } else {
+      
       paddleTopX -= computerSpeed;
     }
   }
@@ -221,6 +228,8 @@ function startGame() {
    if (isGameOver && !isNewGame) {
      body.removeChild(gameOverEl);
      canvas.hidden = false;
+     stopSongs();
+     document.getElementById('fruit').play();
 
    }
    isGameOver = false;
@@ -244,6 +253,20 @@ function startGame() {
     // Hide Cursor
     canvas.style.cursor = 'none';
   });
+}
+
+function stopSongs () {
+  sounds.forEach(sound => {
+    const song = document.getElementById(sound)
+    song.pause()
+    song.currentTime = 0;
+  })
+}    
+setTimeout(startSong(), 10);
+setInterval(startSong(), 204);
+function startSong() {
+  stopSongs();
+  document.getElementById('intro').play();
 }
 
 // On Load
